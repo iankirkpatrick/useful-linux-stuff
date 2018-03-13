@@ -1,0 +1,12 @@
+To assist with log analysis the following configuration can be placed at the bottom of /etc/rsyslog.conf configuration file:
+
+# this line creates a template that will store the messages for each host in a seperate file.
+# a new file will be created daily because of the date in the filename.
+$template DailyPerHostLogs,"/var/log/host-logs/%$YEAR%-%$MONTH%-%$DAY%/%HOSTNAME%.log"
+*.* -?DailyPerHostLogs;TraditionalFormat
+
+The syslog server should be restarted following this change:
+
+sudo /etc/init.d/rsyslog restarted
+
+
