@@ -1,0 +1,71 @@
+1. Install subversion:
+
+sudo apt-get install subversion
+
+2. Create a directory for the svn repositories: 
+
+sudo mkdir /usr/local/svn
+
+3. Create an svn user group:
+
+sudo groupadd svn
+
+4. Assign ownership of /usr/local/svn to the svn group:
+
+sudo chgrp svn /usr/local/svn/
+
+5. Assign write permission to group svn:
+
+sudo chmod g+w /usr/local/svn
+
+6. Assign ownership of subdirectories to svn group: 
+
+sudo chmod g+s /usr/local/svn
+
+7. Add svn group to user accounts: 
+
+sudo usermod -a -G svn <username>
+
+verify:
+
+id <username>
+
+8. Create svn repository network:
+
+umask 002
+sudo svnadmin create /usr/local/svn/network
+umask 022
+
+9. Checkout network repository:
+
+In your home directory
+svn checkout file:///usr/local/svn/network network
+
+This will checkout the repository and create the folder network under the users home directory.
+
+You should now be able to add and commit files to the svn repository under the network directory.
+
+Automatically checkout svn at user logon:
+
+1. To simplify the process for users, the following can be added into .bashrc under the users home directory. Each time they logon the svn repository will be checked out: 
+
+# Checkout SVN repoistory
+svn checkout file:///usr/local/svn/network network
+
+
+Backup and restore:
+It is recommended to have a working backup of the svn repository on another host. However it should be noted that changes should only be made on one server (master), that way we avoid conflicts. 
+
+1. Use the following script to backup the master repository and copy the backup to the slave: 
+
+sudo svnadmin dump /usr/local/svn/network > /home/<username>/svnbackup
+scp /home/<username>/svnbackup <username>@<slave-hostname>:/home/<username>/svnbackup
+
+2. Use the following script to restore the backup from the master onto the slave:
+
+sudo rm -f -r /usr/local/svn/network/*
+umask 002
+sudo svnadmin create /usr/local/svn/network
+umask 022
+sudo svnadmin load /usr/local/svn/network < svnbackup
+
